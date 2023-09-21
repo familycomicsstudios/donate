@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polygon Donation Page</title>
+</head>
+<body>
+    <h1>Welcome to the Polygon Donation Page</h1>
+    <p>Please connect your MetaMask wallet to make a donation:</p>
+
+    <button id="connectWallet">Connect MetaMask</button>
+
+    <p id="accountAddress">Connected Account: </p>
+    <p id="balance">Balance: </p>
+
+    <button id="donateButton" disabled>Donate</button>
+
+    <script>
+        const connectButton = document.getElementById('connectWallet');
+        const accountAddress = document.getElementById('accountAddress');
+        const balance = document.getElementById('balance');
+        const donateButton = document.getElementById('donateButton');
+
+        connectButton.addEventListener('click', async () => {
+            try {
+                // Request MetaMask wallet connection
+                const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+
+                // Display connected account and balance
+                accountAddress.textContent = `Connected Account: ${account}`;
+
+                // Check the wallet's balance
+                const balanceWei = await ethereum.request({ method: 'eth_getBalance', params: [account] });
+                const balanceEth = web3.utils.fromWei(balanceWei, 'ether');
+                balance.textContent = `Balance: ${balanceEth} ETH`;
+
+                // Enable the donation button
+                donateButton.disabled = false;
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        donateButton.addEventListener('click', async () => {
+            // Here, you can implement your donation logic using MetaMask's built-in send function
+            try {
+                await ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [
+                        {
+                            from: accountAddress.textContent.split(':')[1].trim(),
+                            to: 'YOUR_DONATION_ADDRESS',
+                            value: 'AMOUNT_IN_WEI',
+                        },
+                    ],
+                });
+                alert('Donation successful!');
+            } catch (error) {
+                console.error(error);
+                alert('Donation failed.');
+            }
+        });
+    </script>
+</body>
+</html>
